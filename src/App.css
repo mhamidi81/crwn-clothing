@@ -1,5 +1,6 @@
 body {
-  font-family: Montserrat, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif
+  font-family: Montserrat, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  padding: 20px 60px;
 }
 
 .App {
