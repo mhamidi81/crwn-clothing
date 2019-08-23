@@ -3,40 +3,50 @@ import Avatar from "@material-ui/core/Avatar";
 import Button from "@material-ui/core/Button";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import TextField from "@material-ui/core/TextField";
-import Link from "@material-ui/core/Link";
 import Grid from "@material-ui/core/Grid";
-import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
+import AccountCircle from "@material-ui/icons/AccountCircle";
 import Typography from "@material-ui/core/Typography";
 import Container from "@material-ui/core/Container";
 
-import { auth, signInWithGoogle } from "../../firebase/firebase.utils";
+import { auth, createUserProfileDocument } from "../../firebase/firebase.utils";
 
-import "./sign-in.styles.scss";
+import "./sign-up.styles.scss";
 
-class SignIn extends React.Component {
-  constructor(props) {
-    super(props);
+class SignUp extends React.Component {
+  constructor() {
+    super();
 
     this.state = {
+      displayName: "",
       email: "",
-      password: ""
+      password: "",
+      confirmPassword: ""
     };
   }
 
   handleSubmit = async event => {
     event.preventDefault();
-    const { email, password } = this.state;
-    try {
-      await auth.signInWithEmailAndPassword(email, password);
-      this.setState({
-        email: "",
-        password: ""
-      })
-    } catch (error) {
-      console.log('Error while trying to sign in', error);
+    const { displayName, email, password, confirmPassword } = this.state;
+
+    if (password !== confirmPassword) {
+      console.log("Password and confirm password do not match!");
+      return;
     }
 
-    this.setState({ email: "", password: "" });
+    try {
+        const { user } = await auth.createUserWithEmailAndPassword(email, password);
+        await createUserProfileDocument(user, { displayName });
+
+        this.setState({
+          displayName: "",
+          email: "",
+          password: "",
+          confirmPassword: ""
+        });
+
+    } catch (error) {
+      console.log("Error while creating the user", error.message);
+    }
   };
 
   handleChange = event => {
@@ -46,34 +56,46 @@ class SignIn extends React.Component {
 
   render() {
     return (
-      <div className="sign-in">
+      <div className="sign-up">
         <Container component="main" maxWidth="xs">
           <CssBaseline />
           <div className="paper">
             <Avatar className="avatar">
-              <LockOutlinedIcon />
+              <AccountCircle />
             </Avatar>
             <Typography component="h2" variant="h5">
-              I already have an account
+              I do not have an account
             </Typography>
-            <span className="sign-in-hint">
-              Sign in with your email and password
+            <span className="sign-up-hint">
+              Sign up with your email and password
             </span>
-            <form className="sign-in-form" onSubmit={this.handleSubmit}>
+            <form className="sign-up-form" onSubmit={this.handleSubmit}>
+              <TextField
+                placeholder="Name"
+                margin="normal"
+                type="text"
+                required
+                fullWidth
+                id="displayName"
+                label="Display Name"
+                name="displayName"
+                onChange={this.handleChange}
+                value={this.state.displayName}
+                autoFocus
+              />
               <TextField
                 placeholder="Email Address"
                 margin="normal"
+                type="email"
                 required
                 fullWidth
                 id="email"
                 label="Email Address"
                 name="email"
                 autoComplete="email"
-                autoFocus
                 onChange={this.handleChange}
                 value={this.state.email}
               />
-
               <TextField
                 margin="normal"
                 placeholder="Password"
@@ -83,11 +105,22 @@ class SignIn extends React.Component {
                 label="Password"
                 type="password"
                 id="password"
-                autoComplete="current-password"
                 onChange={this.handleChange}
                 value={this.state.password}
+                autoComplete="current-password"
               />
-
+              <TextField
+                margin="normal"
+                placeholder="Confirm Password"
+                required
+                fullWidth
+                name="confirmPassword"
+                label="Confirm Password"
+                type="password"
+                onChange={this.handleChange}
+                value={this.state.confirmPassword}
+                id="confirmPassword"
+              />
               <Grid container spacing={2}>
                 <Grid item xs>
                   <Button
@@ -97,22 +130,22 @@ class SignIn extends React.Component {
                     color="primary"
                     className="btn-submit"
                   >
-                    Sign In
+                    Sign Up
                   </Button>
                 </Grid>
-                <Grid item>
+                {/* <Grid item>
                   <Button
                     fullWidth
                     variant="contained"
                     color="secondary"
                     className="btn-submit"
-                    onClick={signInWithGoogle}
+                    onClick={console.log()}
                   >
                     Sign In With Google
                   </Button>
-                </Grid>
+                </Grid> */}
               </Grid>
-              <Grid container>
+              {/* <Grid container>
                 <Grid item xs>
                   <Link href="#" variant="body2">
                     Forgot password?
@@ -123,7 +156,7 @@ class SignIn extends React.Component {
                     {"Don't have an account? Sign Up"}
                   </Link>
                 </Grid>
-              </Grid>
+              </Grid> */}
             </form>
           </div>
         </Container>
@@ -132,4 +165,4 @@ class SignIn extends React.Component {
   }
 }
 
-export default SignIn;
+export default SignUp;
